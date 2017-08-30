@@ -1,8 +1,65 @@
 require 'open-uri'
-
 require 'nokogiri'
+require 'anemone'
+require 'uri'
 
 SEPALATER = "\t"
+
+#番号からレース場の名前を返す
+def prace_name(num)
+  case num
+  when "01" then
+    return "桐生"
+  when "02" then
+    return "戸田"
+  when "03" then
+    return "江戸川"
+  when "04" then
+    return "平和島"
+  when "05" then
+    return "多摩川"
+  when "06" then
+    return "浜名湖"
+  when "07" then
+    return "蒲郡"
+  when "08" then
+    return "常滑"
+  when "09" then
+    return "津"
+  when "10" then
+    return "三国"
+  when "11" then
+    return "びわこ"
+  when "12" then
+    return "住之江"
+  when "13" then
+    return "尼崎"
+  when "14" then
+    return "鳴門"
+  when "15" then
+    return "丸亀"
+  when "16" then
+    return "児島"
+  when "17" then
+    return "宮島"
+  when "18" then
+    return "徳山"
+  when "19" then
+    return "下関"
+  when "20" then
+    return "若松"
+  when "21" then
+    return "芦屋"
+  when "22" then
+    return "福岡"
+  when "23" then
+    return "唐津"
+  when "24" then
+    return "大村"
+  else
+    return "そんなわけはない"
+  end
+end
 
 #スペース、改行、タブ、全角を半角にして返す
 def mtrim(text)
@@ -27,12 +84,10 @@ def adjust_data(xpath,doc)
 end
 
 
-
 #URLからHTMLファイル取得,Nokogiriの形式にする
-doc = Nokogiri::HTML(open("https://www.boatrace.jp/owpc/pc/race/raceresult?rno=12&jcd=01&hd=20170827"))
+#doc = Nokogiri::HTML(open("https://www.boatrace.jp/owpc/pc/race/raceresult?rno=12&jcd=01&hd=20170827"))
 
-puts doc.title
-
+def get_result(doc,get_url)
 #レース結果
 boat1 = adjust_data("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[1]",doc)
 boat2 = adjust_data("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[2]",doc)
@@ -62,12 +117,26 @@ ppuku = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[1]/div/table/
 #天気
 weather = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/div[1]/div/div[1]",doc)
 weather = weather.split(SEPALATER)
-weather = weather[1] + SEPALATER + weather[2] + SEPALATER + weather[4] + SEPALATER + weather[6] + SEPALATER + weather[8]
+weather_s = weather[1] + SEPALATER + weather[2] + SEPALATER + weather[4] + SEPALATER + weather[6] + SEPALATER + weather[8]
 
 #決まり手
 win_tec = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/div[2]/div[2]/table/tbody/tr/td",doc)
 
 #出力
+#puts get_url.class
+query = get_url.query
+#puts query.class
+query.tr!('a-z',"")
+query.tr!("=","")
+query = query.split("&")
+
+#puts("レース場\tラウンド\t日時")
+puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
+
+
+#puts URI.split(get_url)
+
+puts("結果")
 puts("順位\t艇番\t登録No\t名前\t\tタイム")
 puts boat1
 puts boat2
@@ -85,11 +154,47 @@ puts start_s5
 puts start_s6
 
 puts("\n天気\n気温\t天気\t風速\t水温\t波")
-puts weather
+puts weather_s
 
+puts("\n払い戻し\n勝式\t組番\t払戻金\t人気")
 puts(p3tan + "\n" + p3puku + "\n" + p2tan + "\n" + p2puku + "\n" + ptan + "\n" + ppuku)
 
 puts "\n決まり手\n" + win_tec
+
+end
+
+myurl = ""
+#mdate = `date "+%Y%m%d"`
+mdate = `env TZ=JST+15 date +%Y%m%d`
+#puts mdate.class
+mdate = mdate.to_i
+puts mdate
+
+
+Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index", :depth_limit => 2, :delay => 1) do |anemone|
+  anemone.focus_crawl do |page|
+    page.links.keep_if { |link|
+      link.to_s.match(/(\/raceresult)(.)*hd=#{mdate}$/)
+      #link.to_s.match(/(\/raceresult)(.)*20170830$/)
+    }
+  end
+
+  anemone.on_pages_like(/\/raceresult/) do |page|
+    puts "\n" + page.url.to_s
+    #myurl = myurl + SEPALATER + page.url.to_s
+    #Nokogiri形式にしてget_resultに渡す
+    get_result(page.doc,page.url)
+  end
+end
+
+
+=begin
+url = myurl.split(SEPALATER)
+
+url.each do |url|
+  puts url
+end
+=end
 
 =begin
 #レース結果とスタートタイミングをひっつけようかと思ったが断念
