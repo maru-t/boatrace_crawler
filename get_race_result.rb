@@ -76,10 +76,13 @@ end
 #データを整える
 def adjust_data(xpath,doc) 
   boat = doc.xpath(xpath)
-  boat.each do |boat|
-    xpath = mtrim(boat.text)
+  if boat.text != "" then
+    boat.each do |boat|
+      xpath = mtrim(boat.text)
+    end
+  else
+    xpath =  ""
   end
-  
   return xpath
 end
 
@@ -116,8 +119,13 @@ ppuku = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[1]/div/table/
 
 #天気
 weather = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/div[1]/div/div[1]",doc)
-weather = weather.split(SEPALATER)
-weather_s = weather[1] + SEPALATER + weather[2] + SEPALATER + weather[4] + SEPALATER + weather[6] + SEPALATER + weather[8]
+
+if weather != "" then
+  weather = weather.split(SEPALATER)
+  weather_s = weather[1] + SEPALATER + weather[2] + SEPALATER + weather[4] + SEPALATER + weather[6] + SEPALATER + weather[8]
+else
+  weather_s = ""
+end
 
 #決まり手
 win_tec = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/div[2]/div[2]/table/tbody/tr/td",doc)
@@ -164,14 +172,16 @@ puts "\n決まり手\n" + win_tec
 end
 
 myurl = ""
-#mdate = `date "+%Y%m%d"`
-mdate = `env TZ=JST+15 date +%Y%m%d`
+#今
+date = `date "+%Y%m%d"`
+#適当に時間いじる
+#date = `env TZ=JST-30 date "+%Y%m%d"`
 #puts mdate.class
-mdate = mdate.to_i
+mdate = date.to_i
 puts mdate
 
 
-Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index", :depth_limit => 2, :delay => 1) do |anemone|
+Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + date , :depth_limit => 2, :delay => 1) do |anemone|
   anemone.focus_crawl do |page|
     page.links.keep_if { |link|
       link.to_s.match(/(\/raceresult)(.)*hd=#{mdate}$/)
