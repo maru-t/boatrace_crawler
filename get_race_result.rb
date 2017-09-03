@@ -2,6 +2,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'anemone'
 require 'uri'
+require 'date'
 
 SEPALATER = "\t"
 
@@ -176,7 +177,10 @@ end
 
 end
 
-myurl = ""
+#myurl = ""
+
+#シェルver
+=begin
 #今
 date = `date "+%Y%m%d"`
 #適当に時間いじる
@@ -184,7 +188,14 @@ date = `env TZ=JST-30 date "+%Y%m%d"`
 #puts mdate.class
 mdate = date.to_i
 puts mdate
+=end
 
+#ruby_ver
+today = Date.today
+date =  today.iso8601
+date.tr!("-","")
+mdate = date.to_i
+puts date
 
 Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + date , :depth_limit => 2, :delay => 1) do |anemone|
   anemone.focus_crawl do |page|
