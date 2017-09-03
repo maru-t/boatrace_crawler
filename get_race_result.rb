@@ -130,6 +130,7 @@ end
 #決まり手
 win_tec = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/div[2]/div[2]/table/tbody/tr/td",doc)
 
+
 #出力
 #puts get_url.class
 query = get_url.query
@@ -144,30 +145,34 @@ puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALA
 
 #puts URI.split(get_url)
 
-puts("結果")
-puts("順位\t艇番\t登録No\t名前\t\tタイム")
-puts boat1
-puts boat2
-puts boat3
-puts boat4
-puts boat5
-puts boat6
+if boat1 != "" then
 
-puts("\nスタート\n進入\t艇番\tスタートタイム")
-puts start_s1
-puts start_s2
-puts start_s3
-puts start_s4
-puts start_s5
-puts start_s6
+  puts("結果")
+  puts("順位\t艇番\t登録No\t名前\t\tタイム")
+  puts boat1
+  puts boat2
+  puts boat3
+  puts boat4
+  puts boat5
+  puts boat6
 
-puts("\n天気\n気温\t天気\t風速\t水温\t波")
-puts weather_s
+  puts("\nスタート\n進入\t艇番\tスタートタイム")
+  puts start_s1
+  puts start_s2
+  puts start_s3
+  puts start_s4
+  puts start_s5
+  puts start_s6
 
-puts("\n払い戻し\n勝式\t組番\t払戻金\t人気")
-puts(p3tan + "\n" + p3puku + "\n" + p2tan + "\n" + p2puku + "\n" + ptan + "\n" + ppuku)
+  puts("\n天気\n気温\t天気\t風速\t水温\t波")
+  puts weather_s
 
-puts "\n決まり手\n" + win_tec
+  puts("\n払い戻し\n勝式\t組番\t払戻金\t人気")
+  puts(p3tan + "\n" + p3puku + "\n" + p2tan + "\n" + p2puku + "\n" + ptan + "\n" + ppuku)
+
+  puts "\n決まり手\n" + win_tec
+end
+
 
 end
 
@@ -175,7 +180,7 @@ myurl = ""
 #今
 date = `date "+%Y%m%d"`
 #適当に時間いじる
-#date = `env TZ=JST-30 date "+%Y%m%d"`
+date = `env TZ=JST-30 date "+%Y%m%d"`
 #puts mdate.class
 mdate = date.to_i
 puts mdate
