@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'anemone'
 require 'uri'
 require 'date'
+require 'mysql'
 
 SEPALATER = "\t"
 
@@ -70,7 +71,7 @@ def mtrim(text)
         text.tr!('０-９ａ-ｚＡ-Ｚ', '0-9a-zA-Z')
         text.gsub!(/\s+/,SEPALATER)
         text.gsub!(/^\t/,"")
-        #text = text.split(" ")
+        #text = text.split(SEPALATER)
         return text
 end
 
@@ -91,6 +92,8 @@ end
 #URLからHTMLファイル取得,Nokogiriの形式にする
 #doc = Nokogiri::HTML(open("https://www.boatrace.jp/owpc/pc/race/raceresult?rno=12&jcd=01&hd=20170827"))
 
+
+#それぞれのwebページに行うデータを抜き出す処理
 def get_result(doc,get_url)
 #レース結果
 boat1 = adjust_data("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[1]",doc)
@@ -133,6 +136,7 @@ win_tec = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/d
 
 
 #出力
+
 #puts get_url.class
 query = get_url.query
 #puts query.class
@@ -143,7 +147,8 @@ query = query.split("&")
 #puts("レース場\tラウンド\t日時")
 puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
 
-
+=begin
+#split未対応
 #puts URI.split(get_url)
 
 if boat1 != "" then
@@ -173,9 +178,50 @@ if boat1 != "" then
 
   puts "\n決まり手\n" + win_tec
 end
+=end
+
+
+#データベースアクセス
+
+connection = Mysql::connect("localhost", "root", "root", "boat")
+
+# 文字コードをUTF8に設定
+connection.query("set character set utf8")
+
+# DBに問い合わせ
+boat1 = boat1.split(SEPALATER)
+boat2 = boat2.split(SEPALATER)
+boat3 = boat3.split(SEPALATER)
+boat4 = boat4.split(SEPALATER)
+boat5 = boat5.split(SEPALATER)
+boat6 = boat6.split(SEPALATER)
+
+connection.query("insert into raceresult(zyo,raundo,day,no1_boat,no1_racer_no,no1_time) values(\"#{prace_name(query[1])}\",#{query[0].to_i},\"#{query[2]}\",#{boat1[0].to_i},#{boat1[2].to_i},\"#{boat1[3] + boat1[4]}\")")
+#出力確認用
+#puts("insert into raceresult(zyo,raundo,day,no1_boat,no1_racer_no,no1_time) values(\"#{prace_name(query[1])}\",#{query[0].to_i},\"#{query[2]}\",#{boat1[0].to_i},#{boat1[2].to_i},\"#{boat1[3] + boat1[4]}\")")
+rs = connection.query("SELECT * FROM raceresult")
+
+
+rs = connection.query("SELECT * FROM raceresult")
+
+puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
+# 検索結果を表示
+rs.each do |r|
+  puts r.join ", "
+end
+
+# コネクションを閉じる
+connection.close
+
 
 
 end
+
+
+
+
+
+
 
 #myurl = ""
 
@@ -197,11 +243,11 @@ date.tr!("-","")
 mdate = date.to_i
 puts date
 
-Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + date , :depth_limit => 2, :delay => 1) do |anemone|
+Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + "20170904" , :depth_limit => 2, :delay => 1) do |anemone|
   anemone.focus_crawl do |page|
     page.links.keep_if { |link|
-      link.to_s.match(/(\/raceresult)(.)*hd=#{mdate}$/)
-      #link.to_s.match(/(\/raceresult)(.)*20170830$/)
+      #link.to_s.match(/(\/raceresult)(.)*hd=#{mdate}$/)
+      link.to_s.match(/(\/raceresult)(.)*hd=20170904$/)
     }
   end
 
