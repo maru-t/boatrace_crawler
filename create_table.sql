@@ -2,7 +2,7 @@
 use boat;
 
 create table round_info(
-        race_id varchar(8) not null,
+        race_id varchar(12) not null,/*place + round_no + day*/
         primary key(race_id),
         place varchar(8),
         round_no int,
@@ -44,13 +44,16 @@ create table round_info(
         fuku2_kumi varchar(10),
         fuku2_money int, 
 
-        /*kimarite*/
-        kimarite varchar(8)
+        /*決まり手*/
+        kimarite varchar(12),
+
+        /*返還*/
+        return_money varchar(1)
 
 ) engine=InnoDB;
 
 create table race_info(
-        race_id varchar(8),
+        race_id varchar(12),
         primary key(race_id),
         boat_no varchar(1),
         race_rank varchar(1),

@@ -63,7 +63,7 @@ def prace_name(num)
   end
 end
 
-#スペース、改行、タブ、全角を半角にして返す
+#スペース、改行、タブ、全角を半角にして返す。スペース改行、複数タブはタブに置換
 def mtrim(text)
         text.gsub!(/\\n|\\r|\\t/," ")
         text.gsub!(/[[:space:]]/," ")
@@ -71,7 +71,7 @@ def mtrim(text)
         text.tr!('０-９ａ-ｚＡ-Ｚ', '0-9a-zA-Z')
         text.gsub!(/\s+/,SEPALATER)
         text.gsub!(/^\t/,"")
-        #text = text.split(SEPALATER)
+        text.gsub!("\"","\'")
         return text
 end
 
@@ -87,10 +87,6 @@ def adjust_data(xpath,doc)
   end
   return xpath
 end
-
-
-#URLからHTMLファイル取得,Nokogiriの形式にする
-#doc = Nokogiri::HTML(open("https://www.boatrace.jp/owpc/pc/race/raceresult?rno=12&jcd=01&hd=20170827"))
 
 
 #それぞれのwebページに行うデータを抜き出す処理
@@ -134,12 +130,12 @@ end
 #決まり手
 win_tec = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/div[2]/div[2]/table/tbody/tr/td",doc)
 
+#返還
+return_money = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/div[2]/div[1]/table/tbody",doc)
 
 #出力
-
-#puts get_url.class
-query = get_url.query
-#puts query.class
+#urlから場、ラウンド、日時を抜き出す。
+query = get_url.query #URI::Generic#query
 query.tr!('a-z',"")
 query.tr!("=","")
 query = query.split("&")
@@ -147,9 +143,6 @@ query = query.split("&")
 #puts("レース場\tラウンド\t日時")
 puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
 
-=begin
-#split未対応
-#puts URI.split(get_url)
 
 if boat1 != "" then
 
@@ -162,7 +155,8 @@ if boat1 != "" then
   puts boat5
   puts boat6
 
-  puts("\nスタート\n進入\t艇番\tスタートタイム")
+  puts("\nスタート")
+  puts("進入\t艇番\tスタートタイム")
   puts start_s1
   puts start_s2
   puts start_s3
@@ -170,19 +164,22 @@ if boat1 != "" then
   puts start_s5
   puts start_s6
 
-  puts("\n天気\n気温\t天気\t風速\t水温\t波")
+  puts("\n水面気象情報")
+  puts("気温\t天気\t風速\t水温\t波")
   puts weather_s
 
-  puts("\n払い戻し\n勝式\t組番\t払戻金\t人気")
+  puts("\n払い戻し")
+  puts("勝式\t組番\t払戻金\t人気")
   puts(p3tan + "\n" + p3puku + "\n" + p2tan + "\n" + p2puku + "\n" + ptan + "\n" + ppuku)
 
   puts "\n決まり手\n" + win_tec
+
+  puts"\n返還\n" + return_money
 end
-=end
+
 
 
 #データベースアクセス
-
 connection = Mysql::connect("localhost", "root", "root", "boat")
 
 # 文字コードをUTF8に設定
@@ -196,13 +193,24 @@ boat4 = boat4.split(SEPALATER)
 boat5 = boat5.split(SEPALATER)
 boat6 = boat6.split(SEPALATER)
 
-connection.query("insert into raceresult(zyo,raundo,day,no1_boat,no1_racer_no,no1_time) values(\"#{prace_name(query[1])}\",#{query[0].to_i},\"#{query[2]}\",#{boat1[0].to_i},#{boat1[2].to_i},\"#{boat1[3] + boat1[4]}\")")
+weather_s = weather_s.split(SEPALATER)
+weather_s[0].tr!("℃","")
+weather_s[2].tr!("m","")
+weather_s[3].tr!("℃","")
+weather_s[4].tr!("cm","")
+
+
 #出力確認用
-#puts("insert into raceresult(zyo,raundo,day,no1_boat,no1_racer_no,no1_time) values(\"#{prace_name(query[1])}\",#{query[0].to_i},\"#{query[2]}\",#{boat1[0].to_i},#{boat1[2].to_i},\"#{boat1[3] + boat1[4]}\")")
-rs = connection.query("SELECT * FROM raceresult")
+puts("insert into round_info(race_id, place, round_no, day, temp, sky, wind, water_temp, wave, kimarite, return_money) values(\"#{query[1]+query[0]+query[2]}\", \"#{prace_name(query[1])}\", #{query[0].to_i}, \"#{query[2]}\", #{weather_s[0]}, \"#{weather_s[1]}\", #{weather_s[2]}, #{weather_s[3]}, #{weather_s[4]}, \"#{win_tec}\", \"#{return_money}\")")
+
+connection.query("insert into round_info(race_id, place, round_no, day, temp, sky, wind, water_temp, wave, kimarite, return_money) values(\"#{query[1]+query[0]+query[2]}\", \"#{prace_name(query[1])}\", #{query[0].to_i}, \"#{query[2]}\", #{weather_s[0]}, \"#{weather_s[1]}\", #{weather_s[2]}, #{weather_s[3]}, #{weather_s[4]}, \"#{win_tec}\", \"#{return_money}\")")
+
+puts("insert into race_info(race_id, boat_no, race_rank, racer_no, race_time) values(\"#{query[1]+query[0]+query[2]}\", \"#{boat1[1]}\", \"#{boat1[0]}\", \"#{boat1[2]}\", \"#{boat1[5]}\")")
+
+connection.query("insert into race_info(race_id, boat_no, race_rank, racer_no, race_time) values(\"#{query[1]+query[0]+query[2]}\", \"#{boat1[1]}\", \"#{boat1[0]}\", \"#{boat1[2]}\", \"#{boat1[5]}\")")
 
 
-rs = connection.query("SELECT * FROM raceresult")
+rs = connection.query("SELECT * FROM round_info")
 
 puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
 # 検索結果を表示
@@ -213,8 +221,6 @@ end
 # コネクションを閉じる
 connection.close
 
-
-
 end
 
 
@@ -223,7 +229,6 @@ end
 
 
 
-#myurl = ""
 
 #シェルver
 =begin
@@ -243,118 +248,21 @@ date.tr!("-","")
 mdate = date.to_i
 puts date
 
-Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + "20170904" , :depth_limit => 2, :delay => 1) do |anemone|
+#test用
+mdate = 20170905
+date = mdate.to_s
+
+Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + date , :depth_limit => 2, :delay => 1) do |anemone|
   anemone.focus_crawl do |page|
     page.links.keep_if { |link|
-      #link.to_s.match(/(\/raceresult)(.)*hd=#{mdate}$/)
-      link.to_s.match(/(\/raceresult)(.)*hd=20170904$/)
+      link.to_s.match(/(\/raceresult)(.)*hd=#{mdate}$/)#実行時の日時のデータを取得
     }
   end
 
   anemone.on_pages_like(/\/raceresult/) do |page|
     puts "\n" + page.url.to_s
-    #myurl = myurl + SEPALATER + page.url.to_s
     #Nokogiri形式にしてget_resultに渡す
     get_result(page.doc,page.url)
   end
 end
-
-
-=begin
-url = myurl.split(SEPALATER)
-
-url.each do |url|
-  puts url
-end
-=end
-
-=begin
-#レース結果とスタートタイミングをひっつけようかと思ったが断念
-def addstart(boat1,boat2,boat3,boat4,boat5,boat6,start)
- case start[0]
- when "1" then
-  boat1 = boat1 + "1" + SEPALATER + start[1]
- when "2" then
-  boat2 = boat2 + "2" + SEPALATER + start[1]
- when "3" then
-  boat3 = boat3 + "3" + SEPALATER + start[1]
- when "4" then
-  boat4 = boat4 + "4" + SEPALATER + start[1]
- when "5" then
-  boat5 = boat5 + "5" + SEPALATER + start[1]
- when "6" then
-  boat6 = boat6 + "6" + SEPALATER + start[1]
- else
-  puts "------------error----------------" 
- end
-end
-
-puts start_c1[2]
-if start_c1[0] == "1" then
- b = boat1 + SEPALATER + start_c1[1]
- puts start_c1
- puts "thorough"
-else
- puts "not"
-end
-
-puts b
-=end
-
-
-#はじめの検討、どうデータ取り出すか
-
-
-=begin
-rank = doc.xpath("//td[@class='is-fs14']")
-cource = doc.xpath("//td[@class='is-fs14 is-fBold is-boatColor1']")
-racer_num = doc.xpath("//span[@class='is-fs12']")
-racer_name = doc.xpath("//span[@class='is-fs18 is-fBold']")
-racetime = doc.xpath("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody/tr/td[4]")
-=end
-
-
-
-=begin
-boat1 = doc.xpath("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[1]")
-boat2 = doc.xpath("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[2]")
-boat3 = doc.xpath("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[3]")
-boat4 = doc.xpath("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[4]")
-boat5 = doc.xpath("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[5]")
-boat6 = doc.xpath("//html/body/main/div/div/div/div[2]/div[4]/div[1]/div/table/tbody[6]")
-
-
-boat1.each do |boat1|
-  boat1_result =  mtrim(boat1.text)
-end
-
-boat2.each do |boat2|
-  boat2_result = mtrim(boat2.text)
-end
-
-boat3.each do |boat3|
-  boat3_result = mtrim(boat3.text)
-end
-
-
-=end
-
-
-
-=begin
-rank.each do |rank|
-  puts mtrim(rank.text)
-end
-
-racetime.each do |racetime|
-  puts mtrim(racetime.text)
-end
-
-result = doc.xpath("//div[@class='grid_unit']")
-
-result.each do |result|
-  puts mtrim(result.text)
-end
-=end
-
 
