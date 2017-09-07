@@ -54,8 +54,8 @@ create table round_info(
 
 create table race_info(
         race_id varchar(12),
-        primary key(race_id),
         boat_no varchar(1),
+        primary key(race_id,boat_no),
         race_rank varchar(1),
         racer_no varchar(4),
         race_time varchar(8),
