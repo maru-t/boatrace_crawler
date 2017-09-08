@@ -165,6 +165,9 @@ query.tr!('a-z',"")
 query.tr!("=","")
 query = query.split("&")
 
+#数字の先頭に0
+query[0] = format("%02d", query[0])
+
 #puts("レース場\tラウンド\t日時")
 puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
 
