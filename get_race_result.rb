@@ -78,9 +78,11 @@ end
 
 #¥と,を削除
 def yencomdel(text)
-        if text != "" then
+        if text != nil then
                 text.tr!("¥","")
                 text.tr!(",","")
+        else
+           text = ""
         end
         return text
 end
@@ -141,7 +143,6 @@ pkaku = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[1]/div/table/
 ptan = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[1]/div/table/tbody[6]",doc)
 ppuku = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[1]/div/table/tbody[7]",doc)
 
-
 #天気
 weather = adjust_data("/html/body/main/div/div/div/div[2]/div[5]/div[2]/div[1]/div[1]/div/div[1]",doc)
 
@@ -190,7 +191,7 @@ if boat1 != "" then
 
   puts("\n水面気象情報")
   puts("気温\t天気\t風速\t水温\t波")
-  weather_s.join("\t")
+  puts weather_s.join("\t")
 
   puts("\n払い戻し")
   puts("勝式\t組番\t払戻金\t人気")
