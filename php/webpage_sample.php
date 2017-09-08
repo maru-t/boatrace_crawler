@@ -5,7 +5,10 @@
 </head>
 
 <body>
+
 <?php
+
+        print "<p><a href=\"getquery.php\">query画面へ</a></p>";
 	//設定ファイルの読み込み
 	require_once("config.php");
 
@@ -20,7 +23,7 @@
 		or die("can't link code");
 
 	//問い合わせ
-	$query = 'SELECT * FROM round_info';
+	$query = $_POST["query"];
 
 	$result = mysqli_query($link,$query)
 		or die("fail implements of query!");
@@ -32,7 +35,7 @@
 	print "<ul>";
 	while ($row = $result->fetch_assoc()) {
 		print "<li>";
-		print $row["race_id"] . "(" . $row["place"] . ")";
+		print_r($row);
 		print "</li>";
 	}
 	print "</ul>";
