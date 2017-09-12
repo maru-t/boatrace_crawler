@@ -2,7 +2,7 @@
 
 <head>
 	<meta charset="utf8">
-	<title>Amazonもどき</title>
+	<title>Boatrace_crawrer</title>
 </head>
 
 <body>
