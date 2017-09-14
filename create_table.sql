@@ -48,7 +48,7 @@ create table round_info(
         kimarite varchar(12),
 
         /*返還*/
-        return_money varchar(1)
+        return_money varchar(6)
 
 ) engine=InnoDB;
 
