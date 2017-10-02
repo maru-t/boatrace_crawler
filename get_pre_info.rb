@@ -124,26 +124,59 @@ require 'mysql'
   
   #それぞれのwebページに行うデータを抜き出す処理
   def get_preinfo(doc,query)
-    
+   
+     
+    output_sep(Array["体重","展示タイム","チルト","ペラ交換","部品交換"])
     for i in 1..6 do
       weight = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[4]",doc)
       tenji_time = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[5]",doc)
-      tilto = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[6]",doc)
+      tilt = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[6]",doc)
       pera = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[7]",doc)
       parts_change = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[8]/ul",doc)
-      eval("@weight" + "#{i.to_s}" + "= weight")
+
+      weight[0].tr!("kg","")
+      eval("@weight#{i.to_s} = weight")
       eval("@tenji_time#{i.to_s} = tenji_time")
-      eval("@tilto#{i.to_s} = tilto")
+      eval("@tilt#{i.to_s} = tilt")
       eval("@pera#{i.to_s} = pera")
       eval("@parts_change#{i.to_s} = parts_change")
 
-      output_sep(Array[weight.to_s,tenji_time.to_s,tilto.to_s,pera.to_s,parts_change.to_s])
+      output_sep(Array[weight.to_s,tenji_time.to_s,tilt.to_s,pera.to_s,parts_change.to_s])
+    end
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #puts(adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[2]/div[1]/table/tbody/tr[1]",doc))
+
+
+    for i in 1..6 do 
+      eval("@st_tmp = adjust_data(\"/html/body/main/div/div/div/div[2]/div[4]/div[2]/div[1]/table/tbody/tr[#{i.to_s}]\",doc)")
+      for j in 1..6 do
+        if @st_tmp[0] == j.to_s then
+          eval("@t_course#{j} = @st_tmp[0]")
+          eval("@t_st#{j} = @st_tmp[1]")
+        end
+      end
+      output_sep(@st_tmp)
+    end
+
+    output_sep(Array["展示進入コース","スタートタイミング"])
+
+    for i in 1..6 do
+      eval("puts(@t_course#{i})")
+      eval("puts(@t_st#{i})")
     end
 
 
-   for i in 1..6 do 
-    eval("@tenji_st#{i} = adjust_data(\"/html/body/main/div/div/div/div[2]/div[4]/div[2]/div[1]/table/tbody/tr[#{i.to_s}]\",doc)")
-   end
+    #データベースアクセス
+    connection = Mysql::connect("localhost", "root", "root", "boat") 
+    # 文字コードをUTF8に設定
+    connection.query("set character set utf8") 
+
+    for i in 1..6 do
+      eval("@weight#{i}[0].tr!('kg','')")
+      connection.query("insert into race_info(race_id,boat_no,weight,tilt,t_time,pera_change,parts_change) values(\"#{query[1]+query[0]+query[2]}\",\"#{i}\",#{eval("@weight#{i}[0].to_i")},#{eval("@tilt#{i}[0].to_f")},#{eval("@tenji_time#{i}[0].to_f")},\"#{eval("@pera#{i}[0]")}\",\"#{eval("@parts_change#{i}[0]")}\"   )")
+    end
+    connection.close
 
  end
   
@@ -245,6 +278,7 @@ while from_date != to_date + 1 do
   from_date = from_date + 1
 end
 
+#終了時アラームをならす
 for i in 1..5 do
   `afplay /System/Library/Sounds/Ping.aiff`
 end

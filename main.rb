@@ -37,7 +37,7 @@ date = mdate.to_s
 
 
 #ruby_ver
-from_date = Date.new(2016, 9,13)
+from_date = Date.new(2017, 9,13)
 to_date = Date.new(2017, 9, 13)
 
 race_place = ""
@@ -51,7 +51,8 @@ while from_date != to_date + 1 do
   mdate = date.to_i
   puts date
 
-  Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + date , :depth_limit => 2, :delay => 1) do |anemone|
+#レース結果取得
+  Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + date , :depth_limit => 2, :delay => 2) do |anemone|
     anemone.focus_crawl do |page|
       page.links.keep_if { |link|
         link.to_s.match(/(\/raceresult)(.)*jcd=#{race_place}(.)*hd=#{mdate}$/)
@@ -96,6 +97,8 @@ while from_date != to_date + 1 do
   from_date = from_date + 1
 end
 
+
+#終わったら音をならす
 for i in 1..5 do
   `afplay /System/Library/Sounds/Ping.aiff`
 end

@@ -13,7 +13,7 @@
 	//設定ファイルの読み込み
 	require_once("config.php");
 
-        ini_set("mysqli.default_socket","/tmp/mysql.sock");
+#        ini_set("mysqli.default_socket","/tmp/mysql.sock");
 
 	//MySQLへの接続
 	$link = mysqli_connect($dbserver,$user,$password,$dbname)
