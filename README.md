@@ -19,4 +19,5 @@
 ##### get_racer_data.rb
 選手個人のデータ取得
 
-##### main.rbu
+##### main.rb
+上記のプログラムの取りまとめ
