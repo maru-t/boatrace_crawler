@@ -12,6 +12,10 @@ create table race_info(
         h_course varchar(1),
         h_st varchar(4),
         h_st_no varchar(1),
+        f integer,
+        l integer,
+        motor_no integer,
+        body_no integer,
 
         /*直前情報*/
         t_course varchar(1),

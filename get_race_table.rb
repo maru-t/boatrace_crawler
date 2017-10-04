@@ -1,4 +1,3 @@
-#get_race_result.rb 結果を取得し、データベースに格納する
 
 require 'open-uri'
 require 'nokogiri'
@@ -67,13 +66,30 @@ require 'mysql'
     end
   end
   
-  
-  
+
+
+  def race_grade(text)
+    case text
+    when "is-ippan" then
+      return "一般"
+    when "is-G3b" then
+      return "G3"
+    when "is-G2b" then
+      return "G2"
+    when "is-G1b" then
+      return "G1"
+    else
+      return "何かがおかしい"
+    end
+  end
+
+
+
   #スペース、改行、タブ、全角を半角にして返す。スペース改行、複数タブ区切りで配列にする
   def mtrim(text)
-          text.gsub!(/\\n|\\r|\\t/," ")
+          text.tr!("　","")
           text.gsub!(/[[:space:]]/," ")
-          text.tr!("　"," ")
+          text.gsub!(/\\n|\\r|\\t/,"aaa")
           text.tr!('０-９ａ-ｚＡ-Ｚ', '0-9a-zA-Z')
           text.gsub!(/\s+/,SEPALATER)
           text.gsub!(/^\t/,"")
@@ -115,9 +131,11 @@ require 'mysql'
   #SEPALATER区切りで出力
   def output_sep(out)
     out.each{|data|
-      print(data + SEPALATER) 
+      if data.nil? == false then
+        print(data + SEPALATER)
+      end
     }
-    puts
+    puts()
   end
   
   
@@ -125,64 +143,59 @@ require 'mysql'
   #それぞれのwebページに行うデータを抜き出す処理
   def get_preinfo(doc,query)
    
-     
-    output_sep(Array["体重","展示タイム","チルト","ペラ交換","部品交換"])
-    for i in 1..6 do
-      weight = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[4]",doc)
-      tenji_time = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[5]",doc)
-      tilt = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[6]",doc)
-      pera = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[7]",doc)
-      parts_change = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[8]/ul",doc)
+    cup_name = adjust_data("/html/body/main/div/div/div/div[1]/div/div[2]/h2",doc)#大会名
 
-      weight[0].tr!("kg","")
-      eval("@weight#{i.to_s} = weight")
-      eval("@tenji_time#{i.to_s} = tenji_time")
-      eval("@tilt#{i.to_s} = tilt")
-      eval("@pera#{i.to_s} = pera")
-      eval("@parts_change#{i.to_s} = parts_change")
-
-      output_sep(Array[weight.to_s,tenji_time.to_s,tilt.to_s,pera.to_s,parts_change.to_s])
-    end
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #puts(adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[2]/div[1]/table/tbody/tr[1]",doc))
-
-
-    for i in 1..6 do 
-      eval("@st_tmp = adjust_data(\"/html/body/main/div/div/div/div[2]/div[4]/div[2]/div[1]/table/tbody/tr[#{i.to_s}]\",doc)")
-      for j in 1..6 do
-        if @st_tmp[0] == j.to_s then
-          eval("@t_course#{j} = i")#iコースはj号艇 t_course1=1号艇の進入コース
-          eval("@t_st#{j} = @st_tmp[1]")
-        end
-      end
-      output_sep(@st_tmp)
-    end
-
-    output_sep(Array["展示進入コース","スタートタイミング"])
+    race_type = adjust_data("/html/body/main/div/div/div/div[1]/div/div[2]/span",doc)#レース種類(ex.一般戦、優勝戦)
+    stabilizer = adjust_data("/html/body/main/div/div/div/div[1]/div/div[2]/div",doc)#安定板使用してるか
+    what_day = adjust_data("/html/body/main/div/div/div/div[2]/div[1]/ul/li[@class = \"is-active2\"]/span/span",doc)#開催何日目か
+    race_rank = adjust_data("/html/body/main/div/div/div/div[1]/div/div[2]/@class",doc)#レース階級(ex.SG,G1,G2,G3,一般)
+    host_time = adjust_data("/html/body/main/div/div/div/div[2]/div[2]/table/tbody/tr[1]",doc)#レース開始時間
 
     for i in 1..6 do
-      eval("puts(@t_course#{i})")
-      eval("puts(@t_st#{i})")
+      eval("@motor_no#{i.to_s} = adjust_data(\"/html/body/main/div/div/div/div[2]/div[4]/table/tbody[#{i.to_s}]/tr[1]/td[7]\",doc)")#モーター番号
+      eval("@boat_no#{i.to_s} = adjust_data(\"/html/body/main/div/div/div/div[2]/div[4]/table/tbody[#{i.to_s}]/tr[1]/td[8]\",doc)")#ボート番号
+      eval("@fl#{i.to_s} = adjust_data(\"/html/body/main/div/div/div/div[2]/div[4]/table/tbody[#{i.to_s}]/tr[1]/td[4]\",doc)")#フライング出遅れ
+      eval("@fl#{i.to_s}.delete_at(2)")
+      eval("@fl#{i.to_s}[0].delete!(\"F\")")
+      eval("@fl#{i.to_s}[1].delete!(\"L\")")
     end
 
 
-    #データベースアクセス
+
+    host_time.slice!(0,2)
+    #puts(host_time[query[3].to_i - 1])#ラウンド毎のレースの時間を代入
+
+    race_rank[1] = race_grade(race_rank[1])
+
+    output_sep(Array["大会名","レース種類","距離","安定板","何日目","レース階級","開始時間"])
+    output_sep(Array[ cup_name[0],race_type[0],race_type[1],stabilizer[0],what_day[0],race_rank[1],host_time[query[3].to_i - 1] ])
+
+    output_sep(Array[ "何号艇","モーター番号","ボート番号","フライング","出遅れ" ])
+
+    for i in 1..6 do
+      eval("output_sep(Array[ \"#{i.to_s}\",@motor_no#{i.to_s}[0],@boat_no#{i.to_s}[0],@fl#{i.to_s}[0],@fl#{i.to_s}[1]  ])")
+    end
+
+
+
+        #データベースアクセス
     connection = Mysql::connect("localhost", "root", "root", "boat") 
     # 文字コードをUTF8に設定
     connection.query("set character set utf8") 
 
     for i in 1..6 do
-      eval("@weight#{i}[0].tr!('kg','')")
-      #connection.query("insert into race_info(race_id,boat_no,weight,tilt,t_time,pera_change,parts_change) values(\"#{query[1]+query[0]+query[2]}\",\"#{i}\",#{eval("@weight#{i}[0].to_i")},#{eval("@tilt#{i}[0].to_f")},#{eval("@tenji_time#{i}[0].to_f")},\"#{eval("@pera#{i}[0]")}\",\"#{eval("@parts_change#{i}[0]")}\"   )")
+       puts(" insert into race_info(race_id,boat_no,f,l,motor_no,body_no) values( \"#{query[1]+query[0]+query[2]}\" , \"#{i}\" , #{eval("@fl#{i.to_s}[0]")} , #{eval("@fl#{i.to_s}[1]")} , #{eval("@motor_no#{i.to_s}[0]")} , #{eval("@boat_no#{i.to_s}[0]")}) ")
 
-      puts("update race_info set weight = #{eval("@weight#{i}[0].to_i")} , tilt = #{eval("@tilt#{i}[0].to_f")} ,t_course = \"#{eval("@t_course#{i}")}\" ,t_st = \"#{eval("@t_st#{i}")}\", t_time = #{eval("@tenji_time#{i}[0].to_f")} , pera_change = \"#{eval("@pera#{i}[0]")}\" , parts_change = \"#{eval("@parts_change#{i}[0]")}\"  where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
-
-      connection.query("update race_info set weight = #{eval("@weight#{i}[0].to_i")} , tilt = #{eval("@tilt#{i}[0].to_f")} ,t_course = \"#{eval("@t_course#{i}")}\" ,t_st = \"#{eval("@t_st#{i}")}\", t_time = #{eval("@tenji_time#{i}[0].to_f")} , pera_change = \"#{eval("@pera#{i}[0]")}\" , parts_change = \"#{eval("@parts_change#{i}[0]")}\"  where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
+       connection.query(" insert into race_info(race_id,boat_no,f,l,motor_no,body_no) values( \"#{query[1]+query[0]+query[2]}\" , \"#{i}\" , #{eval("@fl#{i.to_s}[0]")} , #{eval("@fl#{i.to_s}[1]")} , #{eval("@motor_no#{i.to_s}[0]")} , #{eval("@boat_no#{i.to_s}[0]")}) ")
     end
+
+    puts("insert into round_info(race_id,host_time,race_type,stabilizer) values( \"#{query[1]+query[0]+query[2]}\" , #{host_time[query[3].to_i - 1]} , \"#{race_type[0]}\" , \"#{stabilizer[0]}\") ")
+
+    connection.query("insert into round_info(race_id,host_time,race_type,stabilizer) values( \"#{query[1]+query[0]+query[2]}\" , \"#{host_time[query[3].to_i-1]}\" , \"#{race_type[0]}\" , \"#{stabilizer[0]}\") ")
+
     connection.close
 
- end
+  end
   
 #end#class end
   
@@ -219,7 +232,7 @@ require 'mysql'
 
 
   
-#ruby_ver
+#ruby_ver 日付 開催場指定
 from_date = Date.new(2017, 9,27)
 to_date = Date.new(2017, 9, 27)
 
@@ -235,11 +248,11 @@ while from_date != to_date + 1 do
   Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + date , :depth_limit => 2, :delay => 1) do |anemone|
     anemone.focus_crawl do |page|
       page.links.keep_if { |link|
-        link.to_s.match(/(\/beforeinfo)(.)*jcd=#{race_place}(.)*hd=#{mdate}$/)
+        link.to_s.match(/(\/racelist)(.)*jcd=#{race_place}(.)*hd=#{mdate}$/)
       }
     end
   
-    anemone.on_pages_like(/\/beforeinfo/) do |page|
+    anemone.on_pages_like(/\/racelist/) do |page|
       puts "\n\n-------------------------------------------------------------------\n\n" 
       puts page.url.to_s
       #urlから場、ラウンド、日時を抜き出す。
@@ -248,10 +261,10 @@ while from_date != to_date + 1 do
       query.tr!("=","")
       query = query.split("&") 
       #数字の先頭に0
-      query[0] = format("%02d", query[0])     
+      query << query[0]
+      query[0] = format("%02d", query[0]) 
       #puts("レース場\tラウンド\t日時")
       puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
-
 
       get_preinfo(page.doc,query)
 =begin 

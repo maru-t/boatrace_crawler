@@ -37,8 +37,8 @@ date = mdate.to_s
 
 
 #ruby_ver
-from_date = Date.new(2017, 9,13)
-to_date = Date.new(2017, 9, 13)
+from_date = Date.new(2017, 9,27)
+to_date = Date.new(2017, 9, 27)
 
 race_place = ""
 result = Get_result.new()
@@ -71,11 +71,15 @@ while from_date != to_date + 1 do
       query[0] = format("%02d", query[0])     
       #puts("レース場\tラウンド\t日時")
       puts "#" + query[1] + result.prace_name(query[1]) + Get_result::SEPALATER + query[0] + "R" + Get_result::SEPALATER + query[2]
-      
+
+#突貫工事
+      result.get_result(page.doc,query)
+=begin      
       #データベースアクセス
       connection = Mysql::connect("localhost", "root", "root", "boat") 
       # 文字コードをUTF8に設定
-      connection.query("set character set utf8") 
+      connection.query("set character set utf8")
+
       statement = connection.prepare("SELECT race_id FROM round_info WHERE race_id = ?")
       begin
         tuple = statement.execute(query[1]+query[0]+query[2]).fetch
@@ -90,7 +94,9 @@ while from_date != to_date + 1 do
         end
       ensure
         statement.close
-      end  
+      end
+=end
+
     end
   end
 

@@ -255,6 +255,7 @@ class Get_result
       #出力確認用
            
       #race_info insert into
+=begin
        puts("insert into race_info(race_id, boat_no, race_rank, reg_no, race_time, h_course, h_st) values(\"#{query[1]+query[0]+query[2]}\", \"#{boat1[1]}\", \"#{boat1[0]}\", \"#{boat1[2]}\", \"#{boat1[5]}\", \"#{course[0]}\", \"#{st_time[0]}\" )")
       puts("insert into race_info(race_id, boat_no, race_rank, reg_no, race_time, h_course, h_st) values(\"#{query[1]+query[0]+query[2]}\", \"#{boat2[1]}\", \"#{boat2[0]}\", \"#{boat2[2]}\", \"#{boat2[5]}\", \"#{course[1]}\", \"#{st_time[1]}\" )")
       puts("insert into race_info(race_id, boat_no, race_rank, reg_no, race_time, h_course, h_st) values(\"#{query[1]+query[0]+query[2]}\", \"#{boat3[1]}\", \"#{boat3[0]}\", \"#{boat3[2]}\", \"#{boat3[5]}\", \"#{course[2]}\", \"#{st_time[2]}\" )")
@@ -274,16 +275,21 @@ class Get_result
             
       connection.query("insert into round_info(race_id, place, round_no, day, temp, sky, wind, water_temp, wave, kimarite, 3tan_kumi, 3tan_money, 3tan_pop, 3puku_kumi, 3puku_money, 3puku_pop, 2tan_kumi, 2tan_money, 2tan_pop, 2puku_kumi, 2puku_money, 2puku_pop, kaku1_kumi, kaku1_money, kaku1_pop, kaku2_kumi, kaku2_money, kaku2_pop, kaku3_kumi, kaku3_money, kaku3_pop, tan_kumi, tan_money, fuku1_kumi, fuku1_money, fuku2_kumi, fuku2_money) values(\"#{query[1]+query[0]+query[2]}\", \"#{prace_name(query[1])}\", #{query[0].to_i}, \"#{query[2]}\", #{weather_s[0]}, \"#{weather_s[1]}\", #{weather_s[2]}, #{weather_s[3]}, #{weather_s[4]}, \"#{win_tec[0]}\", \"#{p3tan[1]}\", #{p3tan[2].to_i}, #{p3tan[3].to_i}, \"#{p3puku[1]}\", #{p3puku[2].to_i}, #{p3puku[3].to_i}, \"#{p2tan[1]}\", #{p2tan[2].to_i}, #{p2tan[3].to_i}, \"#{p2puku[1]}\", #{p2puku[2].to_i}, #{p2puku[3].to_i}, \"#{pkaku[1]}\", #{pkaku[2].to_i}, #{pkaku[3].to_i}, \"#{pkaku[4]}\", #{pkaku[5].to_i}, #{pkaku[6].to_i}, \"#{pkaku[7]}\", #{pkaku[8].to_i}, #{pkaku[9].to_i}, \"#{ptan[1]}\", #{ptan[2].to_i}, \"#{ppuku[1]}\", #{ppuku[2].to_i}, \"#{ppuku[3]}\", #{ppuku[4].to_i} )")
       
-      
-      #puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
-      # 検索結果を表示
+=end     
 
+      #race_info insert
 =begin
-            rs = connection.query("SELECT * FROM round_info,race_info")
-            rs.each do |r|
-              puts r.join ", "
-            end
+      for i in 1..6 do
+        connection.query("insert into race_info(race_id, boat_no, race_rank, reg_no, race_time, h_course, h_st) values(\"#{query[1]+query[0]+query[2]}\", \"#{eval("boat#{i}[1]")}\",\"#{eval("boat#{i}[0]")}\", \"#{eval("boat#{i}[2]")}\", \"#{eval("boat#{i}[5]")}\", \"#{course[i-1]}\", \"#{st_time[i-1]}\" )")
+      end
 =end
+      for i in 1..6 do
+        puts("update race_info set race_rank = \"#{eval("boat#{i}[0]")}\", reg_no = \"#{eval("boat#{i}[2]")}\", race_time = \"#{eval("boat#{i}[5]")}\", h_course = \"#{course[i-1]}\", h_st = \"#{st_time[i-1]}\" where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
+
+        connection.query("update race_info set race_rank = \"#{eval("boat#{i}[0]")}\", reg_no = \"#{eval("boat#{i}[2]")}\", race_time = \"#{eval("boat#{i}[5]")}\", h_course = \"#{course[i-1]}\", h_st = \"#{st_time[i-1]}\" where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
+      end
+
+      #puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
             
       # コネクションを閉じる
       connection.close
