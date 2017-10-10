@@ -134,7 +134,12 @@ require 'mysql'
       pera = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[7]",doc)
       parts_change = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[8]/ul",doc)
 
-      weight[0].tr!("kg","")
+      if weight[0].nil? then
+
+      elsif
+        weight[0].tr!("kg","")
+      end
+
       eval("@weight#{i.to_s} = weight")
       eval("@tenji_time#{i.to_s} = tenji_time")
       eval("@tilt#{i.to_s} = tilt")
@@ -153,11 +158,32 @@ require 'mysql'
       for j in 1..6 do
         if @st_tmp[0] == j.to_s then
           eval("@t_course#{j} = i")#iコースはj号艇 t_course1=1号艇の進入コース
-          eval("@t_st#{j} = @st_tmp[1]")
+          if @st_tmp[1].include?("F") then
+            eval("@t_st#{j} = @st_tmp[1].tr(\"F\",\"-\")")
+          else
+            eval("@t_st#{j} = @st_tmp[1]")
+          end
         end
       end
       output_sep(@st_tmp)
     end
+
+=begin 何のためかわからん
+    for i in 1..6 do
+      eval("@t_st#{i}.trim")
+    end
+=end
+
+=begin スタート順 sort
+    stNo = Array[@t_st1,@t_st2,@t_st3,@t_st4,@t_st5,@t_st6]
+    for i in 2..6 do
+      if eval("@t_course#{i}") > max then
+        max = eval("@t_course#{i}.tr!(\"\",\"\")") 
+      elsif eval("@t_course#{i}") == max then
+
+      end
+    end
+=end
 
     output_sep(Array["展示進入コース","スタートタイミング"])
 
@@ -173,7 +199,11 @@ require 'mysql'
     connection.query("set character set utf8") 
 
     for i in 1..6 do
-      eval("@weight#{i}[0].tr!('kg','')")
+      if eval("@weight#{i}[0].nil?") then
+      elsif
+        eval("@weight#{i}[0].tr!('kg','')")
+      end
+
       #connection.query("insert into race_info(race_id,boat_no,weight,tilt,t_time,pera_change,parts_change) values(\"#{query[1]+query[0]+query[2]}\",\"#{i}\",#{eval("@weight#{i}[0].to_i")},#{eval("@tilt#{i}[0].to_f")},#{eval("@tenji_time#{i}[0].to_f")},\"#{eval("@pera#{i}[0]")}\",\"#{eval("@parts_change#{i}[0]")}\"   )")
 
       puts("update race_info set weight = #{eval("@weight#{i}[0].to_i")} , tilt = #{eval("@tilt#{i}[0].to_f")} ,t_course = \"#{eval("@t_course#{i}")}\" ,t_st = \"#{eval("@t_st#{i}")}\", t_time = #{eval("@tenji_time#{i}[0].to_f")} , pera_change = \"#{eval("@pera#{i}[0]")}\" , parts_change = \"#{eval("@parts_change#{i}[0]")}\"  where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
@@ -220,8 +250,8 @@ require 'mysql'
 
   
 #ruby_ver
-from_date = Date.new(2017, 9,27)
-to_date = Date.new(2017, 9, 27)
+from_date = Date.new(2017, 9, 17)
+to_date = Date.new(2017, 10, 6)
 
 race_place = ""
 

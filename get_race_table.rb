@@ -233,8 +233,8 @@ require 'mysql'
 
   
 #ruby_ver 日付 開催場指定
-from_date = Date.new(2017, 9,27)
-to_date = Date.new(2017, 9, 27)
+from_date = Date.new(2017, 9, 6)
+to_date = Date.new(2017, 10, 6)
 
 race_place = ""
 

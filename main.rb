@@ -37,8 +37,8 @@ date = mdate.to_s
 
 
 #ruby_ver
-from_date = Date.new(2017, 9,27)
-to_date = Date.new(2017, 9, 27)
+from_date = Date.new(2017, 9, 30)
+to_date = Date.new(2017, 10, 6)
 
 race_place = ""
 result = Get_result.new()
