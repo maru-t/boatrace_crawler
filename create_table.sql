@@ -37,6 +37,7 @@ create table round_info(
         day varchar(10),
         host_time time,
         race_type varchar(20),
+        race_grade varchar(5),
         stabilizer varchar(8),
         
         /*気象条件*/

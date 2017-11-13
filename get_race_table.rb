@@ -189,9 +189,9 @@ require 'mysql'
        connection.query(" insert into race_info(race_id,boat_no,f,l,motor_no,body_no) values( \"#{query[1]+query[0]+query[2]}\" , \"#{i}\" , #{eval("@fl#{i.to_s}[0]")} , #{eval("@fl#{i.to_s}[1]")} , #{eval("@motor_no#{i.to_s}[0]")} , #{eval("@boat_no#{i.to_s}[0]")}) ")
     end
 
-    puts("insert into round_info(race_id,host_time,race_type,stabilizer) values( \"#{query[1]+query[0]+query[2]}\" , #{host_time[query[3].to_i - 1]} , \"#{race_type[0]}\" , \"#{stabilizer[0]}\") ")
+    puts("insert into round_info(race_id,host_time,race_type,race_grade,stabilizer) values( \"#{query[1]+query[0]+query[2]}\" , \"#{host_time[query[3].to_i-1]}\" , \"#{race_type[0]}\" , \"#{race_rank[1]}\" , \"#{stabilizer[0]}\") ")
 
-    connection.query("insert into round_info(race_id,host_time,race_type,stabilizer) values( \"#{query[1]+query[0]+query[2]}\" , \"#{host_time[query[3].to_i-1]}\" , \"#{race_type[0]}\" , \"#{stabilizer[0]}\") ")
+    connection.query("insert into round_info(race_id,host_time,race_type,race_grade,stabilizer) values( \"#{query[1]+query[0]+query[2]}\" , \"#{host_time[query[3].to_i-1]}\" , \"#{race_type[0]}\" , \"#{race_rank[1]}\" , \"#{stabilizer[0]}\") ")
 
     connection.close
 
@@ -233,8 +233,11 @@ require 'mysql'
 
   
 #ruby_ver 日付 開催場指定
-from_date = Date.new(2017, 9, 6)
-to_date = Date.new(2017, 10, 6)
+#from_date = Date.new(2017, 9, 6)
+#to_date = Date.new(2017, 10, 6)
+
+from_date= Date.today()
+to_date = Date.today()
 
 race_place = ""
 

@@ -123,18 +123,31 @@ require 'mysql'
   
   #それぞれのwebページに行うデータを抜き出す処理
   def get_preinfo(doc,query)
-   
-    cup_name = adjust_data("/html/body/table/tbody/tr[424]/td[2]/span[1]",doc)#大会名
-    race_type = adjust_data("/html/body/table/tbody/tr[426]/td[2]/span",doc)#レース種類(ex.一般戦、優勝戦)
-    stabilizer = adjust_data("",doc)#安定板使用してるか
-    what_day = adjust_data("",doc)#開催何日目か
-    host_time = adjust_data("",doc)#開催時間
-    race_rank = adjust_data("",doc)#レース階級(ex.SG,G1,G2,G3,一般)
+    name_kanzi = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/div/div/p[1]",doc)#名前漢字
+    name_kana = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/div/div/p[2]",doc)#名前カナ
+    reg_no = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[1]",doc)#登録番号
+    birthday = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[2]",doc)#生年月日
+    height = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[3]",doc)#身長
+    weight = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[4]",doc)#体重
+    bloodtype = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[5]",doc)#血液型
+    sibu = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[6]",doc)#支部
+    pref = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[7]",doc)#出身県
+    generation = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[8]",doc)#登録期
+    rank = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[9]",doc)#級別
 
-    puts(cup_name)
-    puts(race_type)
- 
-  end
+    print("名前漢字:" + name_kanzi)
+    print("名前カナ:" + name_kana)
+    print("登録番号:" + reg_no)
+    print("生年月日:" + birthday)
+    print("身長:" + height)
+    print("体重:" + weight)
+    print("血液型:" + bloodtype)
+    print("支部:" + sibu)
+    print("出身県:" + pref)
+    print("登録期:" + generation)
+    print("級別:" + rank)
+
+    end
   
 #end#class end
   
@@ -184,13 +197,8 @@ while from_date != to_date + 1 do
   mdate = date.to_i
   puts date
 
-  Anemone.crawl("https://www.boatrace.jp/owpc/pc/race/index?" + "hd=" + date , :depth_limit => 2, :delay => 1) do |anemone|
-    anemone.focus_crawl do |page|
-      page.links.keep_if { |link|
-        link.to_s.match(/(\/racelist)(.)*jcd=#{race_place}(.)*hd=#{mdate}$/)
-      }
-    end
-  
+  Anemone.crawl("https://www.boatrace.jp/owpc/pc/data/racersearch/profile?" + "toban=" + regNo , :depth_limit => 1, :delay => 1) do |anemone|
+      
     anemone.on_pages_like(/\/racelist/) do |page|
       puts "\n\n-------------------------------------------------------------------\n\n" 
       puts page.url.to_s
