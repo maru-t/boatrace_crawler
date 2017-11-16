@@ -6,10 +6,11 @@ require 'anemone'
 require 'uri'
 require 'date'
 require 'mysql'
+require './param.rb'
 
 class Get_result
 
-  SEPALATER = "\t"  
+  SEPALATER = "\t"
 
   #番号からレース場の名前を返す
   def prace_name(num)
@@ -343,8 +344,8 @@ end
 =begin  
   
 #ruby_ver
-from_date = Date.new(2016, 9,13)
-to_date = Date.new(2017, 9, 13)
+from_date = Param::From_date
+to_date = Param::To_date
 
 race_place = ""
 

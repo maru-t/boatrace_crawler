@@ -122,7 +122,7 @@ require 'mysql'
   
   
   #それぞれのwebページに行うデータを抜き出す処理
-  def get_preinfo(doc,query)
+  def get_racer_data(doc,query)
     name_kanzi = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/div/div/p[1]",doc)#名前漢字
     name_kana = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/div/div/p[2]",doc)#名前カナ
     reg_no = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[1]",doc)#登録番号
@@ -135,19 +135,20 @@ require 'mysql'
     generation = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[8]",doc)#登録期
     rank = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[9]",doc)#級別
 
-    print("名前漢字:" + name_kanzi)
-    print("名前カナ:" + name_kana)
-    print("登録番号:" + reg_no)
-    print("生年月日:" + birthday)
-    print("身長:" + height)
-    print("体重:" + weight)
-    print("血液型:" + bloodtype)
-    print("支部:" + sibu)
-    print("出身県:" + pref)
-    print("登録期:" + generation)
-    print("級別:" + rank)
-
+    if name_kanzi !=  [] then
+      print("名前漢字:" + name_kanzi.to_s)
+      print("名前カナ:" + name_kana.to_s)
+      print("登録番号:" + reg_no.to_s)
+      print("生年月日:" + birthday.to_s)
+      print("身長:" + height.to_s)
+      print("体重:" + weight.to_s)
+      print("血液型:" + bloodtype.to_s)
+      print("支部:" + sibu.to_s)
+      print("出身県:" + pref.to_s)
+      print("登録期:" + generation.to_s)
+      print("級別:" + rank.to_s)
     end
+  end
   
 #end#class end
   
@@ -179,27 +180,24 @@ require 'mysql'
   date = 20170912
   date = mdate.to_s
 =end 
-  
 
-
-
-  
+=begin    
 #ruby_ver 日付 開催場指定
-from_date = Date.new(2017, 9,13)
-to_date = Date.new(2017, 9, 13)
+from_date = Param::From_date
+to_date = Param::To_date
+=end
 
-race_place = ""
 
-while from_date != to_date + 1 do
+#race_place = ""
+
+from_toban = 3000;
+to_toban = 3100;
+
+while from_toban != to_toban + 1 do
   
-  date =  from_date.iso8601
-  date.tr!("-","")
-  mdate = date.to_i
-  puts date
-
-  Anemone.crawl("https://www.boatrace.jp/owpc/pc/data/racersearch/profile?" + "toban=" + regNo , :depth_limit => 1, :delay => 1) do |anemone|
+  Anemone.crawl("https://www.boatrace.jp/owpc/pc/data/racersearch/profile?" + "toban=" + from_toban.to_s , :depth_limit => 0, :delay => 1) do |anemone|
       
-    anemone.on_pages_like(/\/racelist/) do |page|
+    anemone.on_every_page do |page|
       puts "\n\n-------------------------------------------------------------------\n\n" 
       puts page.url.to_s
       #urlから場、ラウンド、日時を抜き出す。
@@ -207,12 +205,8 @@ while from_date != to_date + 1 do
       query.tr!('a-z',"")
       query.tr!("=","")
       query = query.split("&") 
-      #数字の先頭に0
-      query[0] = format("%02d", query[0]) 
-      #puts("レース場\tラウンド\t日時")
-      #puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
 
-      get_preinfo(page.doc,query)
+      get_racer_data(page.doc,query)
 =begin 
       #データベースアクセス
       connection = Mysql::connect("localhost", "root", "root", "boat") 
@@ -238,7 +232,7 @@ while from_date != to_date + 1 do
     end
   end
 
-  from_date = from_date + 1
+  from_toban = from_toban + 1
 end
 
 #終了時アラームをならす

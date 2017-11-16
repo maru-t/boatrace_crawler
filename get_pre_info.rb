@@ -6,10 +6,9 @@ require 'anemone'
 require 'uri'
 require 'date'
 require 'mysql'
+require './param.rb'
 
 #class Get_preinfo
-
-  SEPALATER = "\t"  
 
   #番号からレース場の名前を返す
   def prace_name(num)
@@ -75,10 +74,10 @@ require 'mysql'
           text.gsub!(/[[:space:]]/," ")
           text.tr!("　"," ")
           text.tr!('０-９ａ-ｚＡ-Ｚ', '0-9a-zA-Z')
-          text.gsub!(/\s+/,SEPALATER)
+          text.gsub!(/\s+/,Param::SEPALATER)
           text.gsub!(/^\t/,"")
           text.gsub!("\"","\'")
-          text = text.split(SEPALATER)
+          text = text.split(Param::SEPALATER)
           return text
   end
   
@@ -115,7 +114,7 @@ require 'mysql'
   #SEPALATER区切りで出力
   def output_sep(out)
     out.each{|data|
-      print(data + SEPALATER) 
+      print(data + Param::SEPALATER) 
     }
     puts
   end
@@ -250,8 +249,8 @@ require 'mysql'
 
   
 #ruby_ver
-from_date = Date.new(2017, 9, 17)
-to_date = Date.new(2017, 10, 6)
+from_date = Param::From_date
+to_date = Param::To_date
 
 race_place = ""
 
@@ -280,7 +279,7 @@ while from_date != to_date + 1 do
       #数字の先頭に0
       query[0] = format("%02d", query[0])     
       #puts("レース場\tラウンド\t日時")
-      puts "#" + query[1] + prace_name(query[1]) + SEPALATER + query[0] + "R" + SEPALATER + query[2]
+      puts "#" + query[1] + prace_name(query[1]) + Param::SEPALATER + query[0] + "R" + Param::SEPALATER + query[2]
 
 
       get_preinfo(page.doc,query)

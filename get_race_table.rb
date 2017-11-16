@@ -5,6 +5,7 @@ require 'anemone'
 require 'uri'
 require 'date'
 require 'mysql'
+require './param.rb'
 
 #class Get_preinfo
 
@@ -233,11 +234,9 @@ require 'mysql'
 
   
 #ruby_ver 日付 開催場指定
-#from_date = Date.new(2017, 9, 6)
-#to_date = Date.new(2017, 10, 6)
+from_date = Param::From_date
+to_date = Param::To_date
 
-from_date= Date.today()
-to_date = Date.today()
 
 race_place = ""
 

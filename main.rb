@@ -7,6 +7,7 @@ require 'uri'
 require 'date'
 require 'mysql'
 require '/Users/taka/boatrace_crawler/ruby/get_race_result.rb'
+require './param.rb'
 
   #シェルver
 =begin
@@ -37,8 +38,8 @@ date = mdate.to_s
 
 
 #ruby_ver
-from_date = Date.new(2017, 9, 30)
-to_date = Date.new(2017, 10, 6)
+from_date = Param::From_date
+to_date = Param::To_date
 
 race_place = ""
 result = Get_result.new()
@@ -70,7 +71,7 @@ while from_date != to_date + 1 do
       #数字の先頭に0
       query[0] = format("%02d", query[0])     
       #puts("レース場\tラウンド\t日時")
-      puts "#" + query[1] + result.prace_name(query[1]) + Get_result::SEPALATER + query[0] + "R" + Get_result::SEPALATER + query[2]
+      puts "#" + query[1] + result.prace_name(query[1]) + Param::SEPALATER + query[0] + "R" + Param::SEPALATER + query[2]
 
 #突貫工事
       result.get_result(page.doc,query)
