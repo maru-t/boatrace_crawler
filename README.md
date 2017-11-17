@@ -9,15 +9,19 @@
 
 ##### get_pre_info.rb
 直前情報を取得
+update
 
 ##### get_race_result.rb
 結果を取得
+update
 
 ##### get_race_table.rb
 出走表からデータ取得
+insert
 
 ##### get_racer_data.rb
 選手個人のデータ取得
+not yet
 
 ##### main.rb
 上記のプログラムの取りまとめ

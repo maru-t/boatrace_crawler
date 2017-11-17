@@ -8,7 +8,7 @@ require 'date'
 require 'mysql'
 require './param.rb'
 
-class Get_result
+#class Get_result
 
   SEPALATER = "\t"
 
@@ -307,7 +307,7 @@ class Get_result
           
   end
   
-end  
+#end  
   
   
   
@@ -341,13 +341,15 @@ end
 
 
 
-=begin  
+#=begin  
   
 #ruby_ver
 from_date = Param::From_date
 to_date = Param::To_date
 
 race_place = ""
+
+print("\n\n\n\n\n\n\nget_race_result.rb-----------------\n\n\n\n\n\n\n")
 
 while from_date != to_date + 1 do
   
@@ -380,6 +382,10 @@ while from_date != to_date + 1 do
       connection = Mysql::connect("localhost", "root", "root", "boat") 
       # 文字コードをUTF8に設定
       connection.query("set character set utf8") 
+
+
+      get_result(page.doc,query)
+=begin
       statement = connection.prepare("SELECT race_id FROM round_info WHERE race_id = ?")
       begin
         tuple = statement.execute(query[1]+query[0]+query[2]).fetch
@@ -394,7 +400,10 @@ while from_date != to_date + 1 do
         end
       ensure
         statement.close
-      end  
+      end 
+
+=end
+ 
     end
   end
 
@@ -405,4 +414,4 @@ for i in 1..5 do
   `afplay /System/Library/Sounds/Ping.aiff`
 end
 
-=end
+#=end

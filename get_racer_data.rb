@@ -193,6 +193,8 @@ to_date = Param::To_date
 from_toban = 3000;
 to_toban = 3100;
 
+print("\n\n\n\n\n\n\nget_racer_data.rb-----------------\n\n\n\n\n\n\n")
+
 while from_toban != to_toban + 1 do
   
   Anemone.crawl("https://www.boatrace.jp/owpc/pc/data/racersearch/profile?" + "toban=" + from_toban.to_s , :depth_limit => 0, :delay => 1) do |anemone|

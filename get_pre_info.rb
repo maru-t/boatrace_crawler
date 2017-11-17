@@ -254,6 +254,8 @@ to_date = Param::To_date
 
 race_place = ""
 
+print("\n\n\n\n\n\n\nget_pre_info.rb-----------------\n\n\n\n\n\n\n")
+
 while from_date != to_date + 1 do
   
   date =  from_date.iso8601
