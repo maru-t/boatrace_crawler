@@ -5,6 +5,7 @@ require 'anemone'
 require 'uri'
 require 'date'
 require 'mysql'
+require './param.rb'
 
 #class Get_preinfo
 
@@ -154,16 +155,22 @@ require 'mysql'
       print("級別:" + rank.to_s + "\n")
 
 
-    #データベースアクセス
-    connection = Mysql::connect("localhost", "root", "root", "boat") 
+      #データベースアクセス
+      connection = Mysql::connect("localhost", "root", "root", "boat") 
 
-    # 文字コードをUTF8に設定
-    connection.query("set character set utf8") 
+      # 文字コードをUTF8に設定
+      connection.query("set character set utf8") 
 
-    puts("insert into boatracer(reg_no,name,height,branch,birthplace,reg_time,bloodtype,birthday,grade) values(#{reg_no[0]},\"#{name_kanzi[0] + name_kanzi[1]}\",#{height[0]},\"#{sibu[0]}\",\"#{pref[0]}\",#{generation[0]},\"#{bloodtype[0]}\",\'#{birthday[0]}\',\"#{rank[0]}\") ")
-    connection.query("insert into boatracer(reg_no,name,height,branch,birthplace,reg_time,bloodtype,birthday,grade) values(#{reg_no[0]},\"#{name_kanzi[0] + name_kanzi[1]}\",#{height[0]},\"#{sibu[0]}\",\"#{pref[0]}\",#{generation[0]},\"#{bloodtype[0]}\",\'#{birthday[0]}\',\"#{rank[0]}\") ")
+      if name_kanzi[1] == nil then
+        namekan = name_kanzi[0]
+      else
+        namekan = name_kanzi[0] + name_kanzi[1]
+      end
 
-    connection.close
+      puts("insert into boatracer(reg_no,name,height,branch,birthplace,reg_time,bloodtype,birthday,grade) values(#{reg_no[0]},\"#{namekan}\",#{height[0]},\"#{sibu[0]}\",\"#{pref[0]}\",#{generation[0]},\"#{bloodtype[0]}\",\'#{birthday[0]}\',\"#{rank[0]}\") ")
+      connection.query("insert into boatracer(reg_no,name,height,branch,birthplace,reg_time,bloodtype,birthday,grade) values(#{reg_no[0]},\"#{namekan}\",#{height[0]},\"#{sibu[0]}\",\"#{pref[0]}\",#{generation[0]},\"#{bloodtype[0]}\",\'#{birthday[0]}\',\"#{rank[0]}\") ")
+
+      connection.close
 
     end
   end
@@ -209,8 +216,8 @@ to_date = Param::To_date
 #race_place = ""
 
 #2014高塚~
-from_toban = 4000;
-to_toban = 4010;
+from_toban = Param::From_toban;
+to_toban = Param::To_toban;
 
 print("\n\n\n\n\n\n\nget_racer_data.rb-----------------\n\n\n\n\n\n\n")
 
