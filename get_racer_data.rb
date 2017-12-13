@@ -136,17 +136,35 @@ require 'mysql'
     rank = adjust_data("/html/body/main/div/div/div/div[2]/div/div[1]/dl/dd[9]",doc)#級別
 
     if name_kanzi !=  [] then
-      print("名前漢字:" + name_kanzi.to_s)
-      print("名前カナ:" + name_kana.to_s)
-      print("登録番号:" + reg_no.to_s)
-      print("生年月日:" + birthday.to_s)
-      print("身長:" + height.to_s)
-      print("体重:" + weight.to_s)
-      print("血液型:" + bloodtype.to_s)
-      print("支部:" + sibu.to_s)
-      print("出身県:" + pref.to_s)
-      print("登録期:" + generation.to_s)
-      print("級別:" + rank.to_s)
+      height[0].gsub!("cm","")
+      bloodtype[0].gsub!("型","")
+      generation[0].gsub!("期","")
+      birthday[0].gsub!("/","-")
+
+      print("名前漢字:" + name_kanzi.to_s + "\n")
+      print("名前カナ:" + name_kana.to_s + "\n")
+      print("登録番号:" + reg_no.to_s + "\n")
+      print("生年月日:" + birthday.to_s + "\n")
+      print("身長:" + height.to_s + "\n")
+      print("体重:" + weight.to_s + "\n")
+      print("血液型:" + bloodtype.to_s + "\n")
+      print("支部:" + sibu.to_s + "\n")
+      print("出身県:" + pref.to_s + "\n")
+      print("登録期:" + generation.to_s + "\n")
+      print("級別:" + rank.to_s + "\n")
+
+
+    #データベースアクセス
+    connection = Mysql::connect("localhost", "root", "root", "boat") 
+
+    # 文字コードをUTF8に設定
+    connection.query("set character set utf8") 
+
+    puts("insert into boatracer(reg_no,name,height,branch,birthplace,reg_time,bloodtype,birthday,grade) values(#{reg_no[0]},\"#{name_kanzi[0] + name_kanzi[1]}\",#{height[0]},\"#{sibu[0]}\",\"#{pref[0]}\",#{generation[0]},\"#{bloodtype[0]}\",\'#{birthday[0]}\',\"#{rank[0]}\") ")
+    connection.query("insert into boatracer(reg_no,name,height,branch,birthplace,reg_time,bloodtype,birthday,grade) values(#{reg_no[0]},\"#{name_kanzi[0] + name_kanzi[1]}\",#{height[0]},\"#{sibu[0]}\",\"#{pref[0]}\",#{generation[0]},\"#{bloodtype[0]}\",\'#{birthday[0]}\',\"#{rank[0]}\") ")
+
+    connection.close
+
     end
   end
   
@@ -190,8 +208,9 @@ to_date = Param::To_date
 
 #race_place = ""
 
-from_toban = 3000;
-to_toban = 3100;
+#2014高塚~
+from_toban = 4000;
+to_toban = 4010;
 
 print("\n\n\n\n\n\n\nget_racer_data.rb-----------------\n\n\n\n\n\n\n")
 

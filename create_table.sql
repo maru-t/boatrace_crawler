@@ -93,7 +93,7 @@ create table boatracer(
 	branch		varchar(8),
 	birthplace	varchar(8),
 	reg_time	int,
-	bloodtype	varchar(1),
+	bloodtype	varchar(4),
 	birthday	date,
 	grade		varchar(4)
 ) engine=InnoDB;
