@@ -168,7 +168,8 @@ require './param.rb'
     
     #出力
     #データがあるか(レースが行われたか)
-    if boat1 != [] then
+    #if boat1 != [] then
+    if return_money != [] then
     
       puts("結果")
       puts("順位\t艇番\t登録No\t名前\t\tタイム")
@@ -204,9 +205,11 @@ require './param.rb'
      
       puts "\n決まり手"
       output_sep(win_tec)
-    
+
+      henkan = return_money[0].scan(/\d/)    
       puts"\n返還"
       output_sep(return_money)
+      output_sep(henkan)
     
     
     
