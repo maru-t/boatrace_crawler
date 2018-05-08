@@ -6,8 +6,8 @@ class Param
   From_date = Date.today
   To_date = Date.today
 
-#  From_date = Date.new(2018,3,17)
-#  To_date = Date.new(2018,3,20)
+#  From_date = Date.new(2017,11,1)
+#  To_date = Date.new(2018,5,4)
 
   #2017/01/01 ~ 2017/02/07
   #2018/01/01 ~ 2018/01/15
@@ -87,7 +87,9 @@ class Param
       return "G3"
     when "is-G2b" then
       return "G2"
-    when "is-G1b" then
+    when "is-G1b" then #普通のG1
+      return "G1"
+    when "is-G1a" then #プレミアムG1
       return "G1"
     when "is-SGa" then
       return "SG"

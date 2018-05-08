@@ -5,7 +5,7 @@ require 'anemone'
 require 'uri'
 require 'date'
 require 'mysql'
-require './param.rb'
+require '/Users/taka/boatrace_crawler/ruby/crawler/param.rb'
 
 #class Get_preinfo
 

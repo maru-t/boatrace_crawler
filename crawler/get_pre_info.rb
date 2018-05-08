@@ -7,7 +7,7 @@ require 'anemone'
 require 'uri'
 require 'date'
 require 'mysql'
-require './param.rb'
+require '/Users/taka/boatrace_crawler/ruby/crawler/param.rb'
 
 #class Get_preinfo
   
@@ -76,20 +76,63 @@ require './param.rb'
       pera = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[7]",doc)
       parts_change = adjust_data("/html/body/main/div/div/div/div[2]/div[4]/div[1]/div[1]/table/tbody[#{i.to_s}]/tr[1]/td[8]/ul",doc)
 
+      #体重のkg除去
       if weight[0].nil? then
 
       elsif
         weight[0].tr!("kg","")
       end
 
+      #プロペラ新しいの
       if pera.to_s == "ヤ→ヤ(新)" then
         perae = "新"
-        puts("a")
+        #puts("a")
       else
         perae = pera
-        puts("b")
+        #puts("b")
       end
       puts(pera)
+
+      #部品交換の分類
+      eval("@piston#{i.to_s} = ''")
+      eval("@ring#{i.to_s} = ''")
+      eval("@electrical#{i.to_s} = ''")
+      eval("@carburetor#{i.to_s} = ''")
+      eval("@cylinder#{i.to_s} = ''")
+      eval("@crankshaft#{i.to_s} = ''")
+      eval("@gearcase#{i.to_s} = ''")
+      eval("@carrierbody#{i.to_s} = ''")
+      eval("@pera#{i.to_s} = ''")
+      
+      change_i = 0
+      while parts_change.length > change_i do
+        case parts_change[change_i]
+        when /^ピストン.*/
+          eval("@piston#{i.to_s} = parts_change[change_i]")
+        when /^リング.*/
+          eval("@ring#{i.to_s} = parts_change[change_i]")
+        when /^電気.*/
+          eval("@electrical#{i.to_s} = parts_change[change_i]")
+        when /^キャブ.*/
+          eval("@carburetor#{i.to_s} = parts_change[change_i]")
+        when /^シリンダ.*/
+          eval("@cylinder#{i.to_s} = parts_change[change_i]")
+        when /^シャフト.*/
+          eval("@crankshaft#{i.to_s} = parts_change[change_i]")
+        when /^ギヤ.*/
+          eval("@gearcase#{i.to_s} = parts_change[change_i]")
+        when /^キャリボ.*/
+          eval("@carrierbody#{i.to_s} = parts_change[change_i]")
+        when /^ペラ.*/
+          eval("@pera#{i.to_s} = parts_change[change_i]")
+        else
+          puts("error:get_pre_info.rb\n部品交換")
+          puts(parts_change[change_i])
+          puts(parts_change.to_s)
+          return
+        end
+        change_i = change_i + 1
+      end
 
       eval("@weight#{i.to_s} = weight")
       eval("@tenji_time#{i.to_s} = tenji_time")
@@ -107,6 +150,8 @@ require './param.rb'
     for i in 1..6 do 
       eval("@st_tmp = adjust_data(\"/html/body/main/div/div/div/div[2]/div[4]/div[2]/div[1]/table/tbody/tr[#{i.to_s}]\",doc)")
       for j in 1..6 do
+        eval("@t_course#{j} = nil")
+        eval("@t_st#{j} = nil")
         if @st_tmp[0] == j.to_s then
           eval("@t_course#{j} = i")#iコースはj号艇 t_course1=1号艇の進入コース
           if @st_tmp[1].include?("F") then
@@ -157,9 +202,10 @@ require './param.rb'
 
       #connection.query("insert into race_info(race_id,boat_no,weight,tilt,t_time,pera_change,parts_change) values(\"#{query[1]+query[0]+query[2]}\",\"#{i}\",#{eval("@weight#{i}[0].to_i")},#{eval("@tilt#{i}[0].to_f")},#{eval("@tenji_time#{i}[0].to_f")},\"#{eval("@pera#{i}[0]")}\",\"#{eval("@parts_change#{i}[0]")}\"   )")
 
-      puts("update race_info set weight = #{eval("@weight#{i}[0].to_i")} , tilt = #{eval("@tilt#{i}[0].to_f")} ,t_course = \"#{eval("@t_course#{i}")}\" ,t_st = \"#{eval("@t_st#{i}")}\", t_time = #{eval("@tenji_time#{i}[0].to_f")} , pera_change = \"#{eval("@pera#{i}[0]")}\" , parts_change = \"#{eval("@parts_change#{i}[0]")}\"  where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
+      puts("update race_info set weight = #{eval("@weight#{i}[0].to_f.round(1)")} , tilt = #{eval("@tilt#{i}[0].to_f")} ,t_course = \"#{eval("@t_course#{i}")}\" ,t_st = \"#{eval("@t_st#{i}")}\", t_time = #{eval("@tenji_time#{i}[0].to_f")} , pera_change = \"#{eval("@pera#{i}[0]")}\" , parts_change = \"#{eval("@parts_change#{i}[0]")}\" , piston_change = \"#{eval("@piston#{i}")}\" , carburetor_change = \"#{eval("@carburetor#{i}")}\" , gearcase_change = \"#{eval("@gearcase#{i}")}\" , pistonring_change = \"#{eval("@ring#{i}")}\" , crankshaft_change = \"#{eval("@crankshaft#{i}")}\" , cylinder_change = \"#{eval("@cylinder#{i}")}\" , electrical_change = \"#{eval("@electrical#{i}")}\" , carrierbody_change = \"#{eval("@carrierbody#{i}")}\" where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
 
-      connection.query("update race_info set weight = #{eval("@weight#{i}[0].to_i")} , tilt = #{eval("@tilt#{i}[0].to_f")} ,t_course = \"#{eval("@t_course#{i}")}\" ,t_st = \"#{eval("@t_st#{i}")}\", t_time = #{eval("@tenji_time#{i}[0].to_f")} , pera_change = \"#{eval("@pera#{i}[0]")}\" , parts_change = \"#{eval("@parts_change#{i}[0]")}\"  where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
+      connection.query("update race_info set weight = #{eval("@weight#{i}[0].to_f.round(1)")} , tilt = #{eval("@tilt#{i}[0].to_f")} ,t_course = \"#{eval("@t_course#{i}")}\" ,t_st = \"#{eval("@t_st#{i}")}\", t_time = #{eval("@tenji_time#{i}[0].to_f")} , pera_change = \"#{eval("@pera#{i}[0]")}\" , parts_change = \"#{eval("@parts_change#{i}[0]")}\" , piston_change = \"#{eval("@piston#{i}")}\" , carburetor_change = \"#{eval("@carburetor#{i}")}\" , gearcase_change = \"#{eval("@gearcase#{i}")}\" , pistonring_change = \"#{eval("@ring#{i}")}\" , crankshaft_change = \"#{eval("@crankshaft#{i}")}\" , cylinder_change = \"#{eval("@cylinder#{i}")}\" , electrical_change = \"#{eval("@electrical#{i}")}\" , carrierbody_change = \"#{eval("@carrierbody#{i}")}\" where race_id = \"#{query[1]+query[0]+query[2]}\" AND boat_no = \"#{i}\" ")
+
     end
     connection.close
 

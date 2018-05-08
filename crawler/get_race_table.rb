@@ -7,7 +7,7 @@ require 'anemone'
 require 'uri'
 require 'date'
 require 'mysql'
-require './param.rb'
+require '/Users/taka/boatrace_crawler/ruby/crawler/param.rb'
 
 #class Get_preinfo
 
@@ -90,15 +90,36 @@ require './param.rb'
       puts(eval("@reg_no#{i.to_s}[0]"))
     end
 
+    puts(stabilizer.length)
+    case stabilizer.length
+    when 0 then
+      @stab = ""
+      @enter = ""
+    when 1 then
+      if(stabilizer[0] == '安定板使用') then
+        @stab = stabilizer[0]
+        @enter = ""
+      else
+        @stab = ""
+        @enter = stabilizer[0]
+      end
+    when 2 then
+      @stab = stabilizer[1]
+      @enter = stabilizer[0]
+    else
+      puts("ERROR:get_race_table.rb\n安定板と進入固定のとこをみなさい")
+    end
 
+    puts("安定板,進入固定 : #{@stab},#{@enter}")
+    @meter = race_type[1]
 
     host_time.slice!(0,2)
     #puts(host_time[query[3].to_i - 1])#ラウンド毎のレースの時間を代入
 
     race_rank[1] = Param::race_grade(race_rank[1])
 
-    output_sep(Array["大会名","レース種類","距離","安定板","何日目","レース階級","開始時間"])
-    output_sep(Array[ cup_name[0],race_type[0],race_type[1],stabilizer[0],what_day[0],race_rank[1],host_time[query[3].to_i - 1] ])
+    output_sep(Array["大会名","レース種類","距離","安定板","進入固定","何日目","レース階級","開始時間"])
+    output_sep(Array[ cup_name[0],race_type[0],@meter,@stab,@enter,what_day[0],race_rank[1],host_time[query[3].to_i - 1] ])
 
     output_sep(Array[ "何号艇","モーター番号","ボート番号","フライング","出遅れ" ])
 
@@ -118,14 +139,13 @@ require './param.rb'
 
        connection.query(" insert into race_info(race_id,boat_no,reg_no,f,l,motor_no,body_no) values( \"#{query[1]+query[0]+query[2]}\" , \"#{i}\" , #{eval("@reg_no#{i.to_s}[0]")} , #{eval("@fl#{i.to_s}[0]")} , #{eval("@fl#{i.to_s}[1]")} , #{eval("@motor_no#{i.to_s}[0]")} , #{eval("@boat_no#{i.to_s}[0]")}) ")
     end
+    puts("insert into round_info(race_id,place,round_no,day,host_time,race_type,race_grade,stabilizer,enter_fixed) values( \"#{query[1]+query[0]+query[2]}\" , \"#{Param::prace_name(query[1])}\" , \"#{query[0].to_i}\" , \"#{query[2]}\" , \"#{host_time[query[3].to_i-1]}\" , \"#{race_type[0]}\" , \"#{race_rank[1]}\" , \"#{@stab}\" , \"#{@enter}\") ")
 
-    puts("insert into round_info(race_id,host_time,race_type,race_grade,stabilizer) values( \"#{query[1]+query[0]+query[2]}\" , \"#{host_time[query[3].to_i-1]}\" , \"#{race_type[0]}\" , \"#{race_rank[1]}\" , \"#{stabilizer[0]}\") ")
-
-    connection.query("insert into round_info(race_id,host_time,race_type,race_grade,stabilizer) values( \"#{query[1]+query[0]+query[2]}\" , \"#{host_time[query[3].to_i-1]}\" , \"#{race_type[0]}\" , \"#{race_rank[1]}\" , \"#{stabilizer[0]}\") ")
+    connection.query("insert into round_info(race_id,place,round_no,day,host_time,race_type,race_grade,stabilizer,enter_fixed) values( \"#{query[1]+query[0]+query[2]}\" , \"#{Param::prace_name(query[1])}\" , \"#{query[0].to_i}\" , \"#{query[2]}\" , \"#{host_time[query[3].to_i-1]}\" , \"#{race_type[0]}\" , \"#{race_rank[1]}\" , \"#{@stab}\" , \"#{@enter}\") ")
 
     connection.close
 
-  end
+ end
   
 #end#class end
   

@@ -25,9 +25,17 @@ create table race_info(
         tilt float,
         weight float(3,1),
         parts_change varchar(20),
-        pera_change varchar(2)
-
+        pera_change varchar(10),
+        piston_change varchar(10),
+        carburetor_change varchar(10),
+        gearcase_change varchar(10),
+        pistonring_change varchar(10),
+        crankshaft_change varchar(10),
+        cylinder_change varchar(10),
+        electrical_change varchar(10),
+        carrierbody_change varchar(10)
 ) engine=InnoDB;
+
 
 create table round_info(
         race_id varchar(12),/*place + round_no + day*/
@@ -39,6 +47,7 @@ create table round_info(
         race_type varchar(20),
         race_grade varchar(5),
         stabilizer varchar(8),
+        enter_fixed varchar(8),
         
         /*気象条件*/
         temp float(3,1),
@@ -85,6 +94,7 @@ create table round_info(
 
 /*登録番号	選手名	身長	支部	出身地	登録期	血液型	生年月日	級別(A2とか)半年に一回変わる*/
 
+/*
 create table boatracer(
 	reg_no		int,
 	primary key(reg_no), 
@@ -97,4 +107,4 @@ create table boatracer(
 	birthday	date,
 	grade		varchar(4)
 ) engine=InnoDB;
-
+*/
